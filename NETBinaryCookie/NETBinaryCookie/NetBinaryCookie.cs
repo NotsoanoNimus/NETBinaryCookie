@@ -1,6 +1,8 @@
-﻿namespace NETBinaryCookie;
+﻿using NETBinaryCookie.Types;
 
-public sealed class NetBinaryCookie
+namespace NETBinaryCookie;
+
+public static class NetBinaryCookie
 {
-    public bool IsCondition(object candidate) => throw new NotImplementedException("no");
+    public static BinaryCookieJar ReadFromFile(string fileName) => new(fileName);
 }
