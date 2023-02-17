@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETBinaryCookie", "NETBinaryCookie\NETBinaryCookie.csproj", "{D462851F-5F0E-46FB-A8AD-5A38E5FB7E33}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NETBinaryCookie.Tests", "NETBinaryCookie.Tests\NETBinaryCookie.Tests.csproj", "{EFB8D4F8-054C-4E95-A1A7-97951B7DFA03}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D462851F-5F0E-46FB-A8AD-5A38E5FB7E33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D462851F-5F0E-46FB-A8AD-5A38E5FB7E33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D462851F-5F0E-46FB-A8AD-5A38E5FB7E33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D462851F-5F0E-46FB-A8AD-5A38E5FB7E33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFB8D4F8-054C-4E95-A1A7-97951B7DFA03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFB8D4F8-054C-4E95-A1A7-97951B7DFA03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFB8D4F8-054C-4E95-A1A7-97951B7DFA03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFB8D4F8-054C-4E95-A1A7-97951B7DFA03}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
