@@ -2,6 +2,8 @@
 
 namespace NETBinaryCookie.Types;
 
+// NOTE: CUD functions for the jar need to go in the concrete facade because
+//   the jar's cookie list is not directly modifiable (intentionally).
 public interface IBinaryCookieJar
 {
     public ImmutableArray<BinaryCookie> GetCookies();
@@ -15,9 +17,9 @@ public interface IBinaryCookieJar
 
     public BinaryCookie? AddCookie(BinaryCookie cookie);
 
-    // NOTE: CUD functions for the jar need to go in the concrete implementation because
-    //   the jar's cookie list is not directly modifiable.
     public ImmutableArray<BinaryCookie>? RemoveCookiesByComparator(Func<BinaryCookie, bool> comparator);
+
+    public void Save(string? fileName = null);
 }
 
 public static class BinaryCookieJarExtensions
@@ -35,8 +37,8 @@ public static class BinaryCookieJarExtensions
         bool removeCookiesOlderThanDate = false)
     {
         Func<BinaryCookie, bool> comparator = removeCookiesOlderThanDate
-            ? cookie => DateTime.FromOADate(cookie.Expiration) < expiration
-            : cookie => DateTime.FromOADate(cookie.Expiration) >= expiration;
+            ? cookie => cookie.Expiration < expiration
+            : cookie => cookie.Expiration >= expiration;
 
         return jar.RemoveCookiesByComparator(comparator);
     }

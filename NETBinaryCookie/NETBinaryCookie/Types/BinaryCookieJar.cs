@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using NETBinaryCookie.Types.Meta;
 
 namespace NETBinaryCookie.Types;
 
@@ -8,9 +9,21 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
     
     public string TargetFile { get; }
 
+    public BinaryCookieJarMeta Meta { get; }
+
     public BinaryCookieJar(string fileName)
     {
         this.TargetFile = fileName;
+
+        // Note: "META" exists to track the original imported state of the BinaryCookie file.
+        //   When the modified cookie jar is saved, this library generates its own paging and checksum.
+        this.Meta = BinaryCookieParser.ImportFromFile(fileName);
+
+        var pageCookies = this.Meta.JarPages.SelectMany(page => page.PageCookies).ToList();
+        
+        var cookies = pageCookies.Select(cookie => cookie.Cookie).ToList();
+        
+        this.Cookies.AddRange(cookies);
     }
     
     public ImmutableArray<BinaryCookie> GetCookies() => this.Cookies.ToImmutableArray();
@@ -29,15 +42,15 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
             return null;
         }
         
-        var newCookie = new BinaryCookie()
+        var newCookie = new BinaryCookie
         {
-            Expiration = expiration.ToOADate(),
+            Expiration = expiration,
             Domain = domain,
             Name = name,
             Path = path,
             Value = value,
             Comment = comment ?? null,
-            Creation = creation?.ToOADate() ?? DateTime.Now.ToOADate(),
+            Creation = creation ?? DateTime.Now,
         };
         
         this.Cookies.Add(newCookie);
@@ -70,4 +83,6 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
 
         return toRemove.ToImmutableArray();
     }
+
+    public void Save(string? fileName = null) => BinaryCookieParser.ExportToFile(this.Meta, fileName ?? this.TargetFile);
 }
