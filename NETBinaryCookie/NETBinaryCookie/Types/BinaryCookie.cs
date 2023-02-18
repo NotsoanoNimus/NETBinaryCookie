@@ -11,9 +11,9 @@ public sealed class BinaryCookie
     
     public static bool operator !=(BinaryCookie left, BinaryCookie right) => !(left == right);
 
-    [Required] public double Expiration { get; set; }
+    [Required] public DateTime Expiration { get; set; }
     
-    [Required] public double Creation { get; set; }
+    [Required] public DateTime Creation { get; set; }
     
     public string? Comment { get; set; }
     
