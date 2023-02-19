@@ -10,4 +10,10 @@ internal struct FileMeta
 
     [FieldOffset(4)] [MarshalAs(UnmanagedType.U4)] [Endianness(EndiannessAttribute.Endianness.BigEndian)]
     public readonly uint numPages;
+
+    public FileMeta(uint signature, uint numPages)
+    {
+        this.signature = signature;
+        this.numPages = numPages;
+    }
 }

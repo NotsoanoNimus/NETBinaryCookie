@@ -10,4 +10,10 @@ internal struct PageMeta
 
     [FieldOffset(4)] [MarshalAs(UnmanagedType.U4)]
     public readonly uint numCookies;
+
+    public PageMeta(uint pageStart, uint numCookies)
+    {
+        this.pageStart = pageStart;
+        this.numCookies = numCookies;
+    }
 }
