@@ -12,14 +12,15 @@ public interface IBinaryCookieJar
 
     public BinaryCookie? GetCookie(BinaryCookie cookie);
 
-    public BinaryCookie? AddCookie(DateTime expiration, string domain, string name,
-        string path, string value, string? comment, DateTime? creation);
+    public IEnumerable<BinaryCookie?> GetCookieByComparator(Func<BinaryCookie, bool> comparator);
 
     public BinaryCookie? AddCookie(BinaryCookie cookie);
 
     public ImmutableArray<BinaryCookie>? RemoveCookiesByComparator(Func<BinaryCookie, bool> comparator);
 
     public void Save(string? fileName = null);
+
+    public void Save(Stream stream);
 }
 
 public static class BinaryCookieJarExtensions

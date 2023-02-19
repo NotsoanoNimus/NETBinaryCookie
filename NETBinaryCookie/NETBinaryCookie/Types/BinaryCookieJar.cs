@@ -7,7 +7,7 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
 {
     private List<BinaryCookie> Cookies { get; } = new();
 
-    private string? TargetFileName { get; } = null;
+    private string? TargetFileName { get; }
 
     // The "META" property exists to track the original imported state of the BinaryCookie file.
     //   When the modified cookie jar is saved, this library generates its own paging and checksum.
@@ -48,29 +48,8 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
 
     public BinaryCookie? GetCookie(BinaryCookie cookie) => this.Cookies.FirstOrDefault(c => c == cookie);
 
-    public BinaryCookie? AddCookie(DateTime expiration, string domain, string name,
-        string path, string value, string? comment, DateTime? creation)
-    {
-        if (this.GetCookie((name, domain, path)) is not null)
-        {
-            return null;
-        }
-        
-        var newCookie = new BinaryCookie
-        {
-            Expiration = expiration,
-            Domain = domain,
-            Name = name,
-            Path = path,
-            Value = value,
-            Comment = comment ?? null,
-            Creation = creation ?? DateTime.Now,
-        };
-        
-        this.Cookies.Add(newCookie);
-
-        return newCookie;
-    }
+    public IEnumerable<BinaryCookie?> GetCookieByComparator(Func<BinaryCookie, bool> comparator) =>
+        this.Cookies.Where(comparator);
 
     public BinaryCookie? AddCookie(BinaryCookie cookie)
     {
@@ -99,7 +78,9 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
     }
 
     public void Save(string? fileName = null) =>
-        BinaryCookieParser.ExportToFile(this.Meta,
+        this.Export(
             fileName ?? this.TargetFileName ??
             throw new BinaryCookieException("An explicit filename is required when saving a jar from a stream"));
+
+    public void Save(Stream stream) => this.Export(stream);
 }
