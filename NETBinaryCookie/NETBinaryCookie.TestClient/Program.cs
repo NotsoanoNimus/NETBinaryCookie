@@ -7,7 +7,7 @@ var binaryCookieJar = NetBinaryCookie.ReadFromFile(fileName);
 
 foreach (var cookie in binaryCookieJar.GetCookies())
 {
-    Console.WriteLine($"DOMAIN: {cookie.Domain}\nPATH: {cookie.Path}\nVALUE: {cookie.Value}\n");
+    Console.WriteLine($"DOMAIN: {cookie.Domain}\nNAME: {cookie.Name}\nPATH: {cookie.Path}\nSET: {cookie.Creation}\nEXPIRES: {cookie.Expiration}\nVALUE: {cookie.Value}\n");
 }
 
 Environment.Exit(0);

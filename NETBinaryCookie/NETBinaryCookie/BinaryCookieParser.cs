@@ -15,6 +15,11 @@ internal static class BinaryCookieParser
 
     private const uint CookieMetaEndMarker = 0x_00_00_00_00;
 
+    // SECONDS between 01/01/1970 and 01/01/2001.
+    //   This is added to extracted cookie timers because the latter date is what Apple uses
+    //   in the BinaryCookie timestamps.
+    private const uint OffsetFromNSDateToUnixTime = 978_307_200;
+
     internal static BinaryCookieJarMeta ImportFromFile(string fileName)
     {
         if (!File.Exists(fileName))
@@ -105,21 +110,13 @@ internal static class BinaryCookieParser
 
                 Func<BinaryReader, DateTime> MarshalToLongDateTime = rdr =>
                 {
-                    // The date longs here are BigEndian, so the Marshal should NOT reverse byte order.
+                    // The date longs here are BigEndian, so the reader should NOT reverse byte order of the array.
                     var rawData = rdr.ReadBytes(8).ToArray();
-                    var gcHandle = GCHandle.Alloc(rawData, GCHandleType.Pinned);
                     
-                    try
-                    {
-                        var rawDataPtr = gcHandle.AddrOfPinnedObject();
-                        
-                        var date = DateTime.FromBinary(978307200 + Marshal.ReadInt64(rawDataPtr));
-                        return date;
-                    }
-                    finally
-                    {
-                        gcHandle.Free();
-                    }
+                    var dateTimeRead = BitConverter.ToDouble(rawData);
+                    var convertedDateTime = (uint)(OffsetFromNSDateToUnixTime + dateTimeRead);
+                    
+                    return DateTimeOffset.FromUnixTimeSeconds(convertedDateTime).DateTime;
                 };
                 
                 // Set all cookie properties here as they're read.
