@@ -3,7 +3,7 @@
 namespace NETBinaryCookie.Types.Meta;
 
 [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 40)]
-public struct BinaryCookieMeta
+internal struct BinaryCookieMeta
 {
     [FieldOffset(0)] [MarshalAs(UnmanagedType.U4)]
     public readonly uint cookieSize;

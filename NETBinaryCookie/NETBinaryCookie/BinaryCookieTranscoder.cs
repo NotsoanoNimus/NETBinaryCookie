@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace NETBinaryCookie;
 
-public static class BinaryCookieTranscoder
+internal static class BinaryCookieTranscoder
 {
     public static uint ConvertBigEndianBytesToUInt32(this byte[] stream, uint offsetIntoStream = 0)
     {
@@ -16,7 +16,7 @@ public static class BinaryCookieTranscoder
                       (stream[offsetIntoStream + 2] << 8) | stream[offsetIntoStream + 3]);
     }
     
-    internal static EndiannessAttribute.Endianness GetPropertyEndianness(FieldInfo property)
+    private static EndiannessAttribute.Endianness GetPropertyEndianness(FieldInfo property)
     {
         try
         {

@@ -3,7 +3,7 @@
 namespace NETBinaryCookie.Types.Meta;
 
 [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 8)]
-public struct PageMeta
+internal struct PageMeta
 {
     [FieldOffset(0)] [MarshalAs(UnmanagedType.U4)] [Endianness(EndiannessAttribute.Endianness.BigEndian)]
     public readonly uint pageStart;
