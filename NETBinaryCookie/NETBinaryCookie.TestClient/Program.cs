@@ -1,7 +1,7 @@
 ﻿using NETBinaryCookie;
 
 
-const string fileName = @"C:\Users\ZackPuhl\Downloads\Cookies.binarycookies";
+const string fileName = @"C:\Users\ZackPuhl\Downloads\com.microsoft.teams.binarycookies";
 
 var binaryCookieJar = NetBinaryCookie.ReadFromFile(fileName);
 

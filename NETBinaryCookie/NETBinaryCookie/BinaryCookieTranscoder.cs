@@ -5,17 +5,6 @@ namespace NETBinaryCookie;
 
 internal static class BinaryCookieTranscoder
 {
-    public static uint ConvertBigEndianBytesToUInt32(this byte[] stream, uint offsetIntoStream = 0)
-    {
-        if (stream.Length < offsetIntoStream + 3)
-        {
-            throw new IndexOutOfRangeException("The byte-stream ended before a UInt32 could be read");
-        }
-
-        return (uint)((stream[offsetIntoStream] << 24) | (stream[offsetIntoStream + 1] << 16) |
-                      (stream[offsetIntoStream + 2] << 8) | stream[offsetIntoStream + 3]);
-    }
-    
     private static EndiannessAttribute.Endianness GetPropertyEndianness(FieldInfo property)
     {
         try

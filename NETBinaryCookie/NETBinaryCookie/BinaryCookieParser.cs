@@ -15,10 +15,7 @@ internal static class BinaryCookieParser
 
     private const uint CookieMetaEndMarker = 0x_00_00_00_00;
 
-    // SECONDS between 01/01/1970 and 01/01/2001.
-    //   This is added to extracted cookie timers because the latter date is what Apple uses
-    //   in the BinaryCookie timestamps.
-    private const uint OffsetFromNsDateToUnixTime = 978_307_200;
+    private const ulong FileFooterSignature = 0x_07_17_20_05_00_00_00_4b;
 
     internal static BinaryCookieJarMeta Import(string fileName)
     {
@@ -49,7 +46,7 @@ internal static class BinaryCookieParser
         // Get each page's size and create the associated PageMeta object to use later.
         foreach (var _ in Enumerable.Range(0, (int)meta.JarDetails.numPages))
         {
-            meta.JarPages.Add(new() { Size = reader.ReadBytes(4).ConvertBigEndianBytesToUInt32() });
+            meta.JarPages.Add(new() { Size = reader.ReadBinaryBigEndianUInt32() });
         }
         
         // Get the position at the cursor right after it's done reading page offsets.
@@ -97,57 +94,21 @@ internal static class BinaryCookieParser
                 {
                     throw new BinaryCookieException("Missing or malformed cookie properties");
                 }
-                
-                // Configure a quick string reader that just scrolls until a null character.
-                Func<BinaryReader, string?> ReadStringToEnd = rdr =>
-                {
-                    var readByte = rdr.ReadByte();
-                    var ret = new List<byte> { readByte };
 
-                    while (readByte != 0x00)
-                    {
-                        readByte = rdr.ReadByte();
-                        ret.Add(readByte);
-                    }
-
-                    return ret.Count < 1 ? null : Encoding.UTF8.GetString(ret.ToArray());
-                };
-
-                Func<BinaryReader, DateTime> MarshalToLongDateTime = rdr =>
-                {
-                    // The date longs here are BigEndian, so the reader should NOT reverse byte order of the array.
-                    var rawData = rdr.ReadBytes(8).ToArray();
-                    
-                    var dateTimeRead = BitConverter.ToDouble(rawData);
-                    var convertedDateTime = (uint)(OffsetFromNsDateToUnixTime + dateTimeRead);
-                    
-                    return DateTimeOffset.FromUnixTimeSeconds(convertedDateTime).DateTime;
-                };
-
-                Func<uint, NetBinaryCookie.CookieFlag[]> GetCookieFlags = flagsRaw =>
-                {
-                    var setFlags = new List<NetBinaryCookie.CookieFlag>();
-                    foreach (NetBinaryCookie.CookieFlag flag in Enum.GetValues(typeof(NetBinaryCookie.CookieFlag)))
-                    {
-                        if ((flagsRaw & (uint)flag) > 0)
-                        {
-                            setFlags.Add(flag);
-                        }
-                    }
-
-                    return setFlags.ToArray();
-                };
+                Func<uint, NetBinaryCookie.CookieFlag[]> GetCookieFlags = flagsRaw => Enum
+                    .GetValues(typeof(NetBinaryCookie.CookieFlag)).Cast<NetBinaryCookie.CookieFlag>()
+                    .Where(flag => (flagsRaw & (uint)flag) > 0).ToArray();
                 
                 // Set all cookie properties here as they're read.
                 pageCookie.Cookie = new()
                 {
-                    Expiration = MarshalToLongDateTime(reader),
-                    Creation = MarshalToLongDateTime(reader),
-                    Comment = pageCookie.CookieProperties.commentOffset > 0 ? ReadStringToEnd(reader) : null,
-                    Domain = ReadStringToEnd(reader)!,
-                    Name = ReadStringToEnd(reader)!,
-                    Path = ReadStringToEnd(reader)!,
-                    Value = ReadStringToEnd(reader)!,
+                    Expiration = reader.ReadBinaryNsDateAsDateTime(),
+                    Creation = reader.ReadBinaryNsDateAsDateTime(),
+                    Comment = pageCookie.CookieProperties.commentOffset > 0 ? reader.ReadBinaryStringToEnd() : null,
+                    Domain = reader.ReadBinaryStringToEnd()!,
+                    Name = reader.ReadBinaryStringToEnd()!,
+                    Path = reader.ReadBinaryStringToEnd()!,
+                    Value = reader.ReadBinaryStringToEnd()!,
                     Flags = GetCookieFlags(pageCookie.CookieProperties.cookieFlags)
                 };
 
@@ -155,13 +116,23 @@ internal static class BinaryCookieParser
                 stream.Seek(pageCookie.StartPosition + pageCookie.CookieProperties.cookieSize, SeekOrigin.Begin);
             }
             // -----
+            
+            // Briefly reposition the stream at the start of the page and calculate a checksum of the header.
+            stream.Seek(pageMeta.StartPosition, SeekOrigin.Begin);
+            pageMeta.Checksum = reader.GetInt32Checksum(pageMeta.Size - 1);
 
             // The next page should be located at the start of this page plus its size/offset/length.
             stream.Seek(pageMeta.StartPosition + pageMeta.Size, SeekOrigin.Begin);
         }
 
         // Get the current checksum value. Not that it's being used, but it moves the cursor.
-        meta.Checksum = reader.ReadBytes(8);
+        meta.Checksum = reader.ReadBinaryBigEndianInt32();
+
+        // Verify the cookie footer signature.
+        if (reader.ReadBinaryBigEndianUInt64() != FileFooterSignature)
+        {
+            throw new BinaryCookieException("File footer signature mismatch");
+        }
 
         // Finally, get the trailing binary data stub that sometimes follows the checksum.
         var trailingData = new List<byte>();

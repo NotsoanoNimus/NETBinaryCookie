@@ -7,7 +7,7 @@ internal sealed class BinaryCookieJarMeta
 
     public List<BinaryCookiePageMeta> JarPages { get; } = new();
 
-    public byte[] Checksum { get; set; } = new byte[8];
+    public int Checksum { get; set; }
 
     public byte[] TrailingData { get; set; } = Array.Empty<byte>();
 }
@@ -17,6 +17,8 @@ internal sealed class BinaryCookiePageMeta
     public uint StartPosition { get; set; }
     
     public uint Size { get; init; }
+    
+    public int Checksum { get; set; }
     
     public PageMeta PageProperties { get; set; }
 
