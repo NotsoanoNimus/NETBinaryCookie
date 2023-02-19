@@ -160,15 +160,22 @@ internal static class BinaryCookieParser
             stream.Seek(pageMeta.StartPosition + pageMeta.Size, SeekOrigin.Begin);
         }
 
+        // Get the current checksum value. Not that it's being used, but it moves the cursor.
         meta.Checksum = reader.ReadBytes(8);
 
-        // var pos = stream.Position;
-        // ulong checksum = 0;
-        // stream.Seek(0, SeekOrigin.Begin);
-        // foreach (var _ in Enumerable.Range(0, (int)(pos - 1)))
-        // {
-        //     checksum += 
-        // }
+        // Finally, get the trailing binary data stub that sometimes follows the checksum.
+        var trailingData = new List<byte>();
+        try
+        {
+            while (true)
+            {
+                trailingData.Add(reader.ReadByte());
+            }
+        }
+        catch
+        {
+            meta.TrailingData = trailingData.ToArray();
+        }
         
         return meta;
     }
