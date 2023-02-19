@@ -2,7 +2,7 @@
 
 namespace NETBinaryCookie.Types;
 
-public sealed class BinaryCookie
+public class BinaryCookie
 {
     public static bool operator ==(BinaryCookie left, BinaryCookie right) =>
         string.Equals(left.Domain, right.Domain, StringComparison.CurrentCultureIgnoreCase) &&
