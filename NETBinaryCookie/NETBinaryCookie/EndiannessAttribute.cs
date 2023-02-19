@@ -1,5 +1,6 @@
 ﻿namespace NETBinaryCookie;
 
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
 internal sealed class EndiannessAttribute : Attribute 
 {
     internal enum Endianness
