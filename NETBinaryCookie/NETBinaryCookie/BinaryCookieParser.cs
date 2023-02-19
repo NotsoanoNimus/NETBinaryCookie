@@ -123,6 +123,20 @@ internal static class BinaryCookieParser
                     
                     return DateTimeOffset.FromUnixTimeSeconds(convertedDateTime).DateTime;
                 };
+
+                Func<uint, NetBinaryCookie.CookieFlag[]> GetCookieFlags = flagsRaw =>
+                {
+                    var setFlags = new List<NetBinaryCookie.CookieFlag>();
+                    foreach (NetBinaryCookie.CookieFlag flag in Enum.GetValues(typeof(NetBinaryCookie.CookieFlag)))
+                    {
+                        if ((flagsRaw & (uint)flag) > 0)
+                        {
+                            setFlags.Add(flag);
+                        }
+                    }
+
+                    return setFlags.ToArray();
+                };
                 
                 // Set all cookie properties here as they're read.
                 pageCookie.Cookie = new()
@@ -133,7 +147,8 @@ internal static class BinaryCookieParser
                     Domain = ReadStringToEnd(reader)!,
                     Name = ReadStringToEnd(reader)!,
                     Path = ReadStringToEnd(reader)!,
-                    Value = ReadStringToEnd(reader)!
+                    Value = ReadStringToEnd(reader)!,
+                    Flags = GetCookieFlags(pageCookie.CookieProperties.cookieFlags)
                 };
 
                 // Go to the end of the cookie in preparation to get the next one.
@@ -144,6 +159,16 @@ internal static class BinaryCookieParser
             // The next page should be located at the start of this page plus its size/offset/length.
             stream.Seek(pageMeta.StartPosition + pageMeta.Size, SeekOrigin.Begin);
         }
+
+        meta.Checksum = reader.ReadBytes(8);
+
+        // var pos = stream.Position;
+        // ulong checksum = 0;
+        // stream.Seek(0, SeekOrigin.Begin);
+        // foreach (var _ in Enumerable.Range(0, (int)(pos - 1)))
+        // {
+        //     checksum += 
+        // }
         
         return meta;
     }

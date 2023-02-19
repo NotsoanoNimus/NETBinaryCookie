@@ -24,4 +24,6 @@ public class BinaryCookie
     [Required] public string Path { get; set; } = string.Empty;
     
     [Required] public string Value { get; set; } = string.Empty;
+    
+    [Required] public NetBinaryCookie.CookieFlag[] Flags { get; set; } = Array.Empty<NetBinaryCookie.CookieFlag>();
 }
