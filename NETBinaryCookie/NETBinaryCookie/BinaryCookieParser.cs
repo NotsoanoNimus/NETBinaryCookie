@@ -128,6 +128,9 @@ internal static class BinaryCookieParser
         // Get the current checksum value. Not that it's being used, but it moves the cursor.
         meta.Checksum = reader.ReadBinaryBigEndianInt32();
 
+        // TODO: Testing
+        //var localChecksum = meta.JarPages.Select(x => x.Checksum).Aggregate(0, (i, j) => i += j);
+
         // Verify the cookie footer signature.
         if (reader.ReadBinaryBigEndianUInt64() != FileFooterSignature)
         {
@@ -149,10 +152,5 @@ internal static class BinaryCookieParser
         }
         
         return meta;
-    }
-
-    internal static void ExportToFile(BinaryCookieJarMeta meta, string fileName)
-    {
-        // TODO
     }
 }
