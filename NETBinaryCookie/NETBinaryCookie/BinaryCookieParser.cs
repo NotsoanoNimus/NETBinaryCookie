@@ -18,9 +18,9 @@ internal static class BinaryCookieParser
     // SECONDS between 01/01/1970 and 01/01/2001.
     //   This is added to extracted cookie timers because the latter date is what Apple uses
     //   in the BinaryCookie timestamps.
-    private const uint OffsetFromNSDateToUnixTime = 978_307_200;
+    private const uint OffsetFromNsDateToUnixTime = 978_307_200;
 
-    internal static BinaryCookieJarMeta ImportFromFile(string fileName)
+    internal static BinaryCookieJarMeta Import(string fileName)
     {
         if (!File.Exists(fileName))
         {
@@ -28,6 +28,11 @@ internal static class BinaryCookieParser
         }
         
         using var stream = File.Open(fileName, FileMode.Open);
+        return Import(stream);
+    }
+    
+    internal static BinaryCookieJarMeta Import(Stream stream)
+    {
         using var reader = new BinaryReader(stream, Encoding.UTF8, false);
 
         var meta = new BinaryCookieJarMeta
@@ -114,7 +119,7 @@ internal static class BinaryCookieParser
                     var rawData = rdr.ReadBytes(8).ToArray();
                     
                     var dateTimeRead = BitConverter.ToDouble(rawData);
-                    var convertedDateTime = (uint)(OffsetFromNSDateToUnixTime + dateTimeRead);
+                    var convertedDateTime = (uint)(OffsetFromNsDateToUnixTime + dateTimeRead);
                     
                     return DateTimeOffset.FromUnixTimeSeconds(convertedDateTime).DateTime;
                 };

@@ -6,19 +6,33 @@ namespace NETBinaryCookie.Types;
 public sealed class BinaryCookieJar : IBinaryCookieJar
 {
     private List<BinaryCookie> Cookies { get; } = new();
-    
-    public string TargetFile { get; }
 
-    public BinaryCookieJarMeta Meta { get; }
+    private string? TargetFileName { get; } = null;
+
+    // The "META" property exists to track the original imported state of the BinaryCookie file.
+    //   When the modified cookie jar is saved, this library generates its own paging and checksum.
+    private BinaryCookieJarMeta Meta { get; }
+
+    public BinaryCookieJar(Stream stream)
+    {
+        this.Meta = BinaryCookieParser.Import(stream);
+        
+        this.RefreshCookiesFromMeta();
+    }
 
     public BinaryCookieJar(string fileName)
     {
-        this.TargetFile = fileName;
+        this.Meta = BinaryCookieParser.Import(fileName);
+        
+        this.RefreshCookiesFromMeta();
 
-        // Note: "META" exists to track the original imported state of the BinaryCookie file.
-        //   When the modified cookie jar is saved, this library generates its own paging and checksum.
-        this.Meta = BinaryCookieParser.ImportFromFile(fileName);
+        this.TargetFileName = fileName;
+    }
 
+    private void RefreshCookiesFromMeta()
+    {
+        this.Cookies.Clear();
+        
         var pageCookies = this.Meta.JarPages.SelectMany(page => page.PageCookies).ToList();
         
         var cookies = pageCookies.Select(cookie => cookie.Cookie).ToList();
@@ -84,5 +98,8 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
         return toRemove.ToImmutableArray();
     }
 
-    public void Save(string? fileName = null) => BinaryCookieParser.ExportToFile(this.Meta, fileName ?? this.TargetFile);
+    public void Save(string? fileName = null) =>
+        BinaryCookieParser.ExportToFile(this.Meta,
+            fileName ?? this.TargetFileName ??
+            throw new BinaryCookieException("An explicit filename is required when saving a jar from a stream"));
 }
