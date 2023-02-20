@@ -21,12 +21,12 @@ internal static class BinaryReaderExtensions
     public static string? ReadBinaryStringToEnd(this BinaryReader rdr)
     {
         var readByte = rdr.ReadByte();
-        var ret = new List<byte> { readByte };
+        var ret = new List<byte>();
 
         while (readByte != 0x00)
         {
-            readByte = rdr.ReadByte();
             ret.Add(readByte);
+            readByte = rdr.ReadByte();
         }
 
         return ret.Count < 1 ? null : Encoding.UTF8.GetString(ret.ToArray());
