@@ -4,6 +4,23 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>NETBinaryCookie</Title>
+        <Authors>NotsoanoNimus</Authors>
+        <Description>A simple, independent iOS binarycookie read-write package for .NET projects.</Description>
+        <PackageProjectUrl>https://github.com/NotsoanoNimus/NETBinaryCookie</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/NotsoanoNimus/NETBinaryCookie/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageIcon>cookieJar.png</PackageIcon>
+        <RepositoryUrl>https://github.com/NotsoanoNimus/NETBinaryCookie</RepositoryUrl>
+        <PackageTags>iOS,cookies</PackageTags>
+        <PackageReleaseNotes>Supports reading and parsing lists of cookies from an input binarycookie file or stream otherwise. Does not yet support writing modified lists of cookies back to disk.</PackageReleaseNotes>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Update="cookieJar.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+      </None>
+    </ItemGroup>
 
 </Project>
