@@ -3,7 +3,7 @@
 namespace NETBinaryCookie.Types.Meta;
 
 [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 40)]
-internal struct BinaryCookieMeta
+internal struct BinaryCookieStructuredProperties
 {
     [FieldOffset(0)] [MarshalAs(UnmanagedType.U4)]
     public readonly uint cookieSize;
@@ -33,7 +33,7 @@ internal struct BinaryCookieMeta
     [FieldOffset(36)] [MarshalAs(UnmanagedType.U4)]
     public readonly uint endHeader;
 
-    public BinaryCookieMeta(uint size, uint flags, uint domainOffset, uint nameOffset, uint pathOffset,
+    public BinaryCookieStructuredProperties(uint size, uint flags, uint domainOffset, uint nameOffset, uint pathOffset,
         uint valueOffset, uint commentOffset, uint endHeader)
     {
         this.cookieSize = size;

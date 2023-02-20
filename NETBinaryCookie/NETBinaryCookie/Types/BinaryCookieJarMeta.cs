@@ -1,11 +1,12 @@
 ﻿using System.Runtime.InteropServices;
+using NETBinaryCookie.Types.Meta;
 
-namespace NETBinaryCookie.Types.Meta;
+namespace NETBinaryCookie.Types;
 
 
 internal sealed class BinaryCookieJarMeta
 {
-    public FileMeta JarDetails { get; set; }
+    public JarStructuredProperties JarDetails { get; set; }
 
     public List<BinaryCookiePageMeta> JarPages { get; } = new();
 
@@ -27,23 +28,23 @@ internal sealed class BinaryCookiePageMeta
     
     public int Checksum { get; set; }
     
-    public PageMeta PageProperties { get; set; }
+    public PageStructuredProperties PageProperties { get; set; }
 
-    public List<BinaryCookieMetaMeta> PageCookies { get; } = new();
+    public List<BinaryCookieMeta> PageCookies { get; } = new();
 
     // pageStart + numCookies [N] + (N * sizeof(int) -> offsets) + pageEnd + (N * cookies.sizes)
     public int CalculatedSize =>
-        Marshal.SizeOf<PageMeta>() + (int)(this.PageProperties.numCookies * sizeof(int)) + sizeof(int) +
+        Marshal.SizeOf<PageStructuredProperties>() + (int)(this.PageProperties.numCookies * sizeof(int)) + sizeof(int) +
         this.PageCookies.Aggregate(0, (i, cookie) => i += cookie.CalculatedSize);
 }
 
-internal sealed class BinaryCookieMetaMeta
+internal sealed class BinaryCookieMeta
 {
     public uint StartPosition { get; set; }
     
     public uint Size { get; set; }
     
-    public BinaryCookieMeta CookieProperties { get; set; }
+    public BinaryCookieStructuredProperties CookieProperties { get; set; }
 
     public BinaryCookie Cookie { get; set; } = default!;
 
@@ -51,7 +52,7 @@ internal sealed class BinaryCookieMetaMeta
         str.Aggregate(0, (acc, s) => acc += s?.Length ?? 0);
 
     // sizeof(cookieMetaProperties) + expirationDate (long) + creationDate (long) + len(stringValues)
-    public int CalculatedSize => Marshal.SizeOf<BinaryCookieMeta>() + sizeof(long) + sizeof(long) +
+    public int CalculatedSize => Marshal.SizeOf<BinaryCookieStructuredProperties>() + sizeof(long) + sizeof(long) +
                                  _strlens(this.Cookie.Comment, this.Cookie.Domain, this.Cookie.Name, this.Cookie.Path,
                                      this.Cookie.Value);
 }

@@ -34,7 +34,7 @@ internal static class BinaryCookieParser
 
         var meta = new BinaryCookieJarMeta
         {
-            JarDetails = BinaryCookieTranscoder.BytesToStruct<FileMeta>(reader.ReadBytes(Marshal.SizeOf<FileMeta>()))
+            JarDetails = BinaryCookieTranscoder.BytesToStruct<JarStructuredProperties>(reader.ReadBytes(Marshal.SizeOf<JarStructuredProperties>()))
         };
 
         // Start by checking the signature and getting the number of pages.
@@ -43,7 +43,7 @@ internal static class BinaryCookieParser
             throw new BinaryCookieException("Invalid binarycookie signature");
         }
         
-        // Get each page's size and create the associated PageMeta object to use later.
+        // Get each page's size and create the associated PageStructuredProperties object to use later.
         foreach (var _ in Enumerable.Range(0, (int)meta.JarDetails.numPages))
         {
             meta.JarPages.Add(new() { Size = reader.ReadBinaryBigEndianUInt32() });
@@ -59,7 +59,7 @@ internal static class BinaryCookieParser
             pageMeta.StartPosition = (uint)stream.Position;
 
             pageMeta.PageProperties =
-                BinaryCookieTranscoder.BytesToStruct<PageMeta>(reader.ReadBytes(Marshal.SizeOf<PageMeta>()));
+                BinaryCookieTranscoder.BytesToStruct<PageStructuredProperties>(reader.ReadBytes(Marshal.SizeOf<PageStructuredProperties>()));
     
             // Check the page header signature.
             if (pageMeta.PageProperties.pageStart != PageMetaStartMarker)
@@ -87,8 +87,8 @@ internal static class BinaryCookieParser
                 pageCookie.StartPosition = (uint)stream.Position;
 
                 pageCookie.CookieProperties =
-                    BinaryCookieTranscoder.BytesToStruct<BinaryCookieMeta>(
-                        reader.ReadBytes(Marshal.SizeOf<BinaryCookieMeta>()));
+                    BinaryCookieTranscoder.BytesToStruct<BinaryCookieStructuredProperties>(
+                        reader.ReadBytes(Marshal.SizeOf<BinaryCookieStructuredProperties>()));
 
                 if (pageCookie.CookieProperties.endHeader != CookieMetaEndMarker)
                 {

@@ -3,7 +3,7 @@
 namespace NETBinaryCookie.Types.Meta;
 
 [StructLayout(LayoutKind.Explicit, Pack = 1, Size = 8)]
-internal struct FileMeta
+internal struct JarStructuredProperties
 {
     [FieldOffset(0)] [MarshalAs(UnmanagedType.U4)] [Endianness(EndiannessAttribute.Endianness.BigEndian)]
     public readonly uint signature;
@@ -11,7 +11,7 @@ internal struct FileMeta
     [FieldOffset(4)] [MarshalAs(UnmanagedType.U4)] [Endianness(EndiannessAttribute.Endianness.BigEndian)]
     public readonly uint numPages;
 
-    public FileMeta(uint signature, uint numPages)
+    public JarStructuredProperties(uint signature, uint numPages)
     {
         this.signature = signature;
         this.numPages = numPages;
