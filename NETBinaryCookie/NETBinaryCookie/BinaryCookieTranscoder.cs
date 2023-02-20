@@ -12,7 +12,7 @@ internal static class BinaryCookieTranscoder
             return ((EndiannessAttribute)property.GetCustomAttributes(typeof(EndiannessAttribute), false).First())
                 .Endian;
         }
-        catch (Exception ex)
+        catch
         {
             // Always assume LE by default since BinaryCookie spec only lists BE in two data locations.
             return EndiannessAttribute.Endianness.LittleEndian;
