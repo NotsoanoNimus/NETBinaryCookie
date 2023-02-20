@@ -7,7 +7,8 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>NETBinaryCookie</Title>
         <Authors>NotsoanoNimus</Authors>
-        <Description>A simple, independent iOS binarycookie read-write package for .NET projects.</Description>
+        <Description>A simple, independent Apple binarycookie format read-write package for .NET projects.</Description>
+        <PackageReadmeFile>NuGet.md</PackageReadmeFile>
         <PackageProjectUrl>https://github.com/NotsoanoNimus/NETBinaryCookie</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/NotsoanoNimus/NETBinaryCookie/blob/master/LICENSE</PackageLicenseUrl>
         <PackageIcon>cookieJar.png</PackageIcon>
@@ -20,6 +21,10 @@
       <None Update="cookieJar.png">
         <Pack>True</Pack>
         <PackagePath></PackagePath>
+      </None>
+      <None Include="docs\NuGet.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
       </None>
     </ItemGroup>
 
