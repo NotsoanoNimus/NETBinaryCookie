@@ -48,7 +48,7 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
 
     public BinaryCookie? GetCookie(BinaryCookie cookie) => this.Cookies.FirstOrDefault(c => c == cookie);
 
-    public IEnumerable<BinaryCookie?> GetCookieByComparator(Func<BinaryCookie, bool> comparator) =>
+    public IEnumerable<BinaryCookie?> GetCookies(Func<BinaryCookie, bool> comparator) =>
         this.Cookies.Where(comparator);
 
     public BinaryCookie? AddCookie(BinaryCookie cookie)
@@ -63,7 +63,7 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
         return null;
     }
     
-    public ImmutableArray<BinaryCookie>? RemoveCookiesByComparator(Func<BinaryCookie, bool> comparator)
+    public ImmutableArray<BinaryCookie>? RemoveCookies(Func<BinaryCookie, bool> comparator)
     {
         var toRemove = this.Cookies.Where(comparator).ToList();
 
