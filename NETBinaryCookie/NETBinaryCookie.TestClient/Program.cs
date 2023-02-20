@@ -1,15 +1,37 @@
-﻿using NETBinaryCookie;
+﻿namespace NETBinaryCookie.TestClient;
 
+using NETBinaryCookie;
 
-const string fileName = @"C:\Users\ZackPuhl\Downloads\com.microsoft.teams.binarycookies";
-
-var binaryCookieJar = NetBinaryCookie.ReadFromFile(fileName);
-
-foreach (var cookie in binaryCookieJar.GetCookies())
+public static class Program
 {
-    Console.WriteLine($"DOMAIN: {cookie.Domain}\nNAME: {cookie.Name}\nPATH: {cookie.Path}\n" +
-                      $"FLAGS: {(cookie.Flags.Length > 0 ? string.Join(", ", cookie.Flags) : "(none)")}\n" +
-                      $"SET: {cookie.Creation}\nEXPIRES: {cookie.Expiration}\nVALUE: {cookie.Value}\n");
-}
+    public static void Main(string[] args)
+    {
+        if (args.Length < 1)
+        {
+            Console.WriteLine("You must specify a binarycookies file to parse.");
+            Environment.Exit(1);
+        }
+        
+        var fileName = args[0];
 
-Environment.Exit(0);
+        var binaryCookieJar = NetBinaryCookie.ReadFromFile(fileName);
+
+        Console.WriteLine(binaryCookieJar.CookiesToJson());
+
+        foreach (var cookie in binaryCookieJar.GetCookies())
+        {
+            Console.WriteLine(cookie + "\n");
+        }
+
+        var mySpecificCookies = binaryCookieJar.GetCookies(cookie => cookie.Domain.ToLower().Contains("github."));
+        foreach (var cookie in mySpecificCookies)
+        {
+            Console.WriteLine(cookie);
+        }
+
+        var cookiesAfterChristmas =
+            binaryCookieJar.GetCookies(cookie => cookie.Creation > new DateTime(2023, 12, 25));
+
+        Environment.Exit(0);
+    }
+}
