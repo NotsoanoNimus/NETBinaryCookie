@@ -6,7 +6,7 @@ Supports reading and parsing lists of cookies from an input binarycookies file o
 
 ### TODOs
 
-- [ ] Reverse-engineer the checksum calculation used and implement it successfully in the library.
+- [X] Reverse-engineer the checksum calculation used and implement it successfully in the library.
 - [ ] Ability to write a cookie jar back to its source file (or another stream/file) after modifying.
 - [ ] Thorough unit testing to detect breaking changes easily.
 - [ ] Expository README documentation that will help others even more thoroughly than other guides/specifications have helped me!

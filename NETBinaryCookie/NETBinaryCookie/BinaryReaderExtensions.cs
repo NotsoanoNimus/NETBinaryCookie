@@ -42,6 +42,32 @@ internal static class BinaryReaderExtensions
         return DateTimeOffset.FromUnixTimeSeconds(convertedDateTime).DateTime;
     }
 
-    public static int GetInt32Checksum(this BinaryReader rdr, uint length) =>
-        Enumerable.Range(1, (int)length / 4).Aggregate(0, (i, _) => rdr.ReadInt32());
+    public static int GetInt32Checksum(this BinaryReader rdr, int rewindToPosition)
+    {
+        /* Let me tell you about this checksum and the nights I wasted banging my head against the wall changing my
+         *   Safari cookies byte-by-byte. Some sample code I'd read from a savvy Swift programmer read:
+         *
+         *         let data = try BinaryDataEncoder().encode(self)
+         *         var checksum: Int32 = 0
+         *         for index in stride(from: 0, to: data.count, by: 4) {
+         *             checksum += Int32(data[index])
+         *         }
+         *         return checksum
+         * 
+         * Source: https://github.com/interstateone/BinaryCookies/blob/master/Sources/BinaryCookies/BinaryCookies.swift#L116
+         *
+         * Imagine not noticing for DAYS that the Int32 cast is NOT ON AN ARRAY SLICE! It's casting a single data byte
+         *   to an Int32 value. So yes, this checksum only adds up every fourth byte in the pages, which is quite
+         *   strange considering it's supposed to verify all data integrity and not 1/4 of it.
+         *
+         * The worst part of this all is the seeming lack of easily available documentation on the file format, but I am
+         *   determined to reverse-engineer the best solution that can both read AND write binarycookies. :)
+         * 
+         */
+        var savePos = rdr.BaseStream.Position;
+        rdr.BaseStream.Seek(rewindToPosition, SeekOrigin.Begin);
+
+        return rdr.ReadBytes((int)(savePos - rewindToPosition)).Where((_, i) => i % 4 == 0)
+            .Aggregate(0, (i, j) => i + j);
+    }
 }

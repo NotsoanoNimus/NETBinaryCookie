@@ -48,10 +48,7 @@ internal static class BinaryCookieParser
         {
             meta.JarPages.Add(new() { Size = reader.ReadBinaryBigEndianUInt32() });
         }
-        
-        // Get the position at the cursor right after it's done reading page offsets.
-        //   This should always mark the first page (w/ header 0x00000100 BE)
-        //var lastPageCursorPosition = stream.Position;
+
         foreach (var pageMeta in meta.JarPages)
         {
             // The first page header (and beyond) are always marked in this position as the start location.
@@ -117,9 +114,8 @@ internal static class BinaryCookieParser
             }
             // -----
             
-            // Briefly reposition the stream at the start of the page and calculate a checksum of the header.
-            stream.Seek(pageMeta.StartPosition, SeekOrigin.Begin);
-            pageMeta.Checksum = reader.GetInt32Checksum(pageMeta.Size - 1);
+            // Briefly reposition the stream at the start of the page and calculate a checksum of the page to this spot.
+            pageMeta.Checksum = reader.GetInt32Checksum((int)pageMeta.StartPosition);
 
             // The next page should be located at the start of this page plus its size/offset/length.
             stream.Seek(pageMeta.StartPosition + pageMeta.Size, SeekOrigin.Begin);
@@ -128,8 +124,8 @@ internal static class BinaryCookieParser
         // Get the current checksum value. Not that it's being used, but it moves the cursor.
         meta.Checksum = reader.ReadBinaryBigEndianInt32();
 
-        // TODO: Testing
-        //var localChecksum = meta.JarPages.Select(x => x.Checksum).Aggregate(0, (i, j) => i += j);
+        // Manually calculate a checksum. This isn't really checked here, but it's useful in unit testing.
+        meta.CalculatedChecksum = meta.JarPages.Select(x => x.Checksum).Aggregate(0, (i, j) => i + j);
 
         // Verify the cookie footer signature.
         if (reader.ReadBinaryBigEndianUInt64() != FileFooterSignature)
