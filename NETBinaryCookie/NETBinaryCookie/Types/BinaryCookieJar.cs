@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using NETBinaryCookie.Types.Meta;
 
 namespace NETBinaryCookie.Types;
 
@@ -11,29 +10,34 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
 
     // The "META" property exists to track the original imported state of the BinaryCookie file.
     //   When the modified cookie jar is saved, this library generates its own paging and checksum.
-    private BinaryCookieJarMeta Meta { get; }
+    //   This can also be null on a new jar that isn't based on an incoming file/stream.
+    private BinaryCookieJarMeta? Meta { get; }
 
     public BinaryCookieJar(Stream stream)
     {
-        this.Meta = BinaryCookieParser.Import(stream);
+        this.Meta = BinaryCookieMetaParser.Import(stream);
         
         this.RefreshCookiesFromMeta();
     }
 
     public BinaryCookieJar(string fileName)
     {
-        this.Meta = BinaryCookieParser.Import(fileName);
+        this.Meta = BinaryCookieMetaParser.Import(fileName);
         
         this.RefreshCookiesFromMeta();
 
         this.TargetFileName = fileName;
     }
 
+    public BinaryCookieJar()
+    {
+    }
+
     private void RefreshCookiesFromMeta()
     {
         this.Cookies.Clear();
         
-        var pageCookies = this.Meta.JarPages.SelectMany(page => page.PageCookies).ToList();
+        var pageCookies = this.Meta!.JarPages.SelectMany(page => page.PageCookies).ToList();
         
         var cookies = pageCookies.Select(cookie => cookie.Cookie).ToList();
         
@@ -80,7 +84,7 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
     public void Save(string? fileName = null) =>
         this.Export(
             fileName ?? this.TargetFileName ??
-            throw new BinaryCookieException("An explicit filename is required when saving a jar from a stream"));
+            throw new BinaryCookieException("An explicit filename is required when saving a jar from a file"));
 
     public void Save(Stream stream) => this.Export(stream);
 }

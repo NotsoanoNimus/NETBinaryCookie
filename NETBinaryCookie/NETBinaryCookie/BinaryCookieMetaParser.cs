@@ -5,7 +5,7 @@ using NETBinaryCookie.Types.Meta;
 
 namespace NETBinaryCookie;
 
-internal static class BinaryCookieParser
+internal static class BinaryCookieMetaParser
 {
     private const string FileSignature = "cook";
     private const uint FileSignatureHex = 0x_63_6F_6F_6B;
