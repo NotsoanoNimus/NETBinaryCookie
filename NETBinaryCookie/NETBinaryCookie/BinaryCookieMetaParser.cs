@@ -7,16 +7,6 @@ namespace NETBinaryCookie;
 
 internal static class BinaryCookieMetaParser
 {
-    private const string FileSignature = "cook";
-    private const uint FileSignatureHex = 0x_63_6F_6F_6B;
-
-    private const uint PageMetaStartMarker = 0x_00_00_01_00;
-    private const uint PageMetaEndMarker = 0x_00_00_00_00;
-
-    private const uint CookieMetaEndMarker = 0x_00_00_00_00;
-
-    private const ulong FileFooterSignature = 0x_07_17_20_05_00_00_00_4b;
-
     internal static BinaryCookieJarMeta Import(string fileName)
     {
         if (!File.Exists(fileName))
@@ -34,13 +24,15 @@ internal static class BinaryCookieMetaParser
 
         var meta = new BinaryCookieJarMeta
         {
-            JarDetails = BinaryCookieTranscoder.BytesToStruct<JarStructuredProperties>(reader.ReadBytes(Marshal.SizeOf<JarStructuredProperties>()))
+            JarDetails =
+                BinaryCookieTranscoder.BytesToStruct<JarStructuredProperties>(
+                    reader.ReadBytes(Marshal.SizeOf<JarStructuredProperties>()))
         };
 
         // Start by checking the signature and getting the number of pages.
-        if (meta.JarDetails.signature != FileSignatureHex)
+        if (meta.JarDetails.signature != BinaryCookieMetaConstants.FileSignatureHex)
         {
-            throw new BinaryCookieException("Invalid binarycookie signature");
+            throw new BinaryCookieException("Invalid binarycookies signature");
         }
         
         // Get each page's size and create the associated PageStructuredProperties object to use later.
@@ -59,7 +51,7 @@ internal static class BinaryCookieMetaParser
                 BinaryCookieTranscoder.BytesToStruct<PageStructuredProperties>(reader.ReadBytes(Marshal.SizeOf<PageStructuredProperties>()));
     
             // Check the page header signature.
-            if (pageMeta.PageProperties.pageStart != PageMetaStartMarker)
+            if (pageMeta.PageProperties.pageStart != BinaryCookieMetaConstants.PageMetaStartMarker)
             {
                 throw new BinaryCookieException("Invalid page header signature");
             }
@@ -67,11 +59,11 @@ internal static class BinaryCookieMetaParser
             // Parse the cookie offsets.
             foreach (var _ in Enumerable.Range(0, (int)pageMeta.PageProperties.numCookies))
             {
-                pageMeta.PageCookies.Add(new() { Size = reader.ReadUInt32() });
+                pageMeta.PageCookies.Add(new() { OffsetFromPageStart = reader.ReadUInt32() });
             }
 
             // At this point, the reader cursor should be at the pageEnd marker, after which the cookies begin.
-            if (reader.ReadUInt32() != PageMetaEndMarker)
+            if (reader.ReadUInt32() != BinaryCookieMetaConstants.PageMetaEndMarker)
             {
                 throw new BinaryCookieException("Missing or malformed page end marker");
             }
@@ -87,12 +79,12 @@ internal static class BinaryCookieMetaParser
                     BinaryCookieTranscoder.BytesToStruct<BinaryCookieStructuredProperties>(
                         reader.ReadBytes(Marshal.SizeOf<BinaryCookieStructuredProperties>()));
 
-                if (pageCookie.CookieProperties.endHeader != CookieMetaEndMarker)
+                if (pageCookie.CookieProperties.endHeader != BinaryCookieMetaConstants.CookieMetaEndMarker)
                 {
                     throw new BinaryCookieException("Missing or malformed cookie properties");
                 }
 
-                Func<uint, NetBinaryCookie.CookieFlag[]> GetCookieFlags = flagsRaw => Enum
+                Func<uint, NetBinaryCookie.CookieFlag[]> getCookieFlags = flagsRaw => Enum
                     .GetValues(typeof(NetBinaryCookie.CookieFlag)).Cast<NetBinaryCookie.CookieFlag>()
                     .Where(flag => (flagsRaw & (uint)flag) > 0).ToArray();
                 
@@ -106,7 +98,7 @@ internal static class BinaryCookieMetaParser
                     Name = reader.ReadBinaryStringToEnd()!,
                     Path = reader.ReadBinaryStringToEnd()!,
                     Value = reader.ReadBinaryStringToEnd()!,
-                    Flags = GetCookieFlags(pageCookie.CookieProperties.cookieFlags)
+                    Flags = getCookieFlags(pageCookie.CookieProperties.cookieFlags)
                 };
 
                 // Go to the end of the cookie in preparation to get the next one.
@@ -134,7 +126,7 @@ internal static class BinaryCookieMetaParser
         }
 
         // Verify the cookie footer signature.
-        if (reader.ReadBinaryBigEndianUInt64() != FileFooterSignature)
+        if (reader.ReadBinaryBigEndianUInt64() != BinaryCookieMetaConstants.FileFooterSignature)
         {
             throw new BinaryCookieException("File footer signature mismatch");
         }

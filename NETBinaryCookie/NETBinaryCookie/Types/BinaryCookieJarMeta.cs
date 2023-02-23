@@ -26,7 +26,7 @@ internal sealed class BinaryCookiePageMeta
 {
     public uint StartPosition { get; set; }
     
-    public uint Size { get; init; }
+    public uint Size { get; set; }
     
     public int Checksum { get; set; }
     
@@ -37,14 +37,14 @@ internal sealed class BinaryCookiePageMeta
     // pageStart + numCookies [N] + (N * sizeof(int) -> offsets) + pageEnd + (N * cookies.sizes)
     public int CalculatedSize =>
         Marshal.SizeOf<PageStructuredProperties>() + (int)(this.PageProperties.numCookies * sizeof(int)) + sizeof(int) +
-        this.PageCookies.Aggregate(0, (i, cookie) => i += cookie.CalculatedSize);
+        this.PageCookies.Aggregate(0, (i, cookie) => i + cookie.CalculatedSize);
 }
 
 internal sealed class BinaryCookieMeta
 {
     public uint StartPosition { get; set; }
     
-    public uint Size { get; set; }
+    public uint OffsetFromPageStart { get; set; }
     
     public BinaryCookieStructuredProperties CookieProperties { get; set; }
 
