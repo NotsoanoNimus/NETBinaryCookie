@@ -14,7 +14,7 @@ public interface IBinaryCookieJar
 
     public IEnumerable<BinaryCookie?> GetCookies(Func<BinaryCookie, bool> comparator);
 
-    public BinaryCookie? AddCookie(BinaryCookie cookie);
+    public BinaryCookie? AddCookie(BinaryCookie cookie, bool throwOnInvalidCookie = true);
 
     public ImmutableArray<BinaryCookie>? RemoveCookies(Func<BinaryCookie, bool> comparator);
 

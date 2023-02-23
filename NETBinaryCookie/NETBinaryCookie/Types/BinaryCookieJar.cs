@@ -55,16 +55,28 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
     public IEnumerable<BinaryCookie?> GetCookies(Func<BinaryCookie, bool> comparator) =>
         this.Cookies.Where(comparator);
 
-    public BinaryCookie? AddCookie(BinaryCookie cookie)
+    public BinaryCookie? AddCookie(BinaryCookie cookie, bool throwOnInvalidCookie = true)
     {
-        if (this.GetCookie(cookie) is null)
+        if (this.GetCookie(cookie) is not null)
         {
-            this.Cookies.Add(cookie);
-
-            return cookie;
+            return null;
         }
 
-        return null;
+        if (cookie.CalculatedSize > BinaryCookieMetaConstants.MaxCookieLength)
+        {
+            if (throwOnInvalidCookie)
+            {
+                throw new BinaryCookieException(
+                    "The provided cookie to add exceeds the maximum cookie "
+                    + $"size of {BinaryCookieMetaConstants.MaxCookieLength} bytes");
+            }
+
+            return null;
+        }
+
+        this.Cookies.Add(cookie);
+
+        return cookie;
     }
     
     public ImmutableArray<BinaryCookie>? RemoveCookies(Func<BinaryCookie, bool> comparator)
