@@ -31,18 +31,28 @@ internal struct BinaryCookieStructuredProperties
     public readonly uint commentOffset;
 
     [FieldOffset(36)] [MarshalAs(UnmanagedType.U4)]
-    public readonly uint endHeader;
+    public readonly uint endHeader = BinaryCookieMetaConstants.CookieMetaEndMarker;
 
-    public BinaryCookieStructuredProperties(uint size, uint flags, uint domainOffset, uint nameOffset, uint pathOffset,
-        uint valueOffset, uint commentOffset, uint endHeader)
+    public BinaryCookieStructuredProperties(
+        int size,
+        int flags,
+        int domainLen,
+        int nameLen,
+        int pathLen,
+        int valueLen,
+        int commentLen)
     {
-        this.cookieSize = size;
-        this.cookieFlags = flags;
-        this.domainOffset = domainOffset;
-        this.nameOffset = nameOffset;
-        this.pathOffset = pathOffset;
-        this.valueOffset = valueOffset;
-        this.commentOffset = commentOffset;
-        this.endHeader = endHeader;
+        this.cookieSize = (uint)size;
+        this.cookieFlags = (uint)flags;
+        
+        // Header struct size + two DateTime doubles always gets counted in offset calcs.
+        //   Extra +1 is for null-terminating 0s on strings.
+        var prologueLength = (uint)(Marshal.SizeOf<BinaryCookieStructuredProperties>() + (sizeof(long) * 2));
+        
+        this.domainOffset = prologueLength;
+        this.nameOffset = this.domainOffset + (uint)domainLen + 1;
+        this.pathOffset = this.nameOffset + (uint)nameLen + 1;
+        this.valueOffset = this.pathOffset + (uint)pathLen + 1;
+        this.commentOffset = commentLen > 0 ? (this.valueOffset + (uint)valueLen + 1) : 0;
     }
 }

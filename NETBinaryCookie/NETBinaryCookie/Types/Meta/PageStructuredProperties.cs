@@ -6,14 +6,13 @@ namespace NETBinaryCookie.Types.Meta;
 internal struct PageStructuredProperties
 {
     [FieldOffset(0)] [MarshalAs(UnmanagedType.U4)] [Endianness(EndiannessAttribute.Endianness.BigEndian)]
-    public readonly uint pageStart;
+    public readonly uint pageStart = BinaryCookieMetaConstants.PageMetaStartMarker;
 
     [FieldOffset(4)] [MarshalAs(UnmanagedType.U4)]
     public readonly uint numCookies;
 
-    public PageStructuredProperties(uint pageStart, uint numCookies)
+    public PageStructuredProperties(uint numCookies)
     {
-        this.pageStart = pageStart;
         this.numCookies = numCookies;
     }
 }

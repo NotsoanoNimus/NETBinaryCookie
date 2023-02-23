@@ -1,6 +1,8 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using System.Text;
 using NETBinaryCookie.Types;
+using NETBinaryCookie.Types.Meta;
 
 namespace NETBinaryCookie;
 
@@ -16,8 +18,6 @@ internal static class BinaryCookieMetaComposer
     {
         var meta = new BinaryCookieJarMeta();
         
-        var cookieSegments = new List<BinaryCookie[]>();
-        
         for (int currentPageSize = 0, j = 0, i = 1; i <= cookies.Length; i++)
         {
             if (currentPageSize + cookies[i - 1].CalculatedSize < PreferredPageMaxSize)
@@ -31,11 +31,52 @@ internal static class BinaryCookieMetaComposer
                 }
             }
             
-            cookieSegments.Add(cookies.Skip(j).Take(i - j).ToArray());
+            
+            // Create a new page with this section of cookies.
+            var pageCookies = cookies.Skip(j).Take(i - j).ToArray();
+            
+            var page = new BinaryCookiePageMeta
+            {
+                PageProperties = new PageStructuredProperties((uint)pageCookies.Length)
+            };
+            
+            var spaceForPageMetaAndCookieOffsets =
+                Marshal.SizeOf<PageStructuredProperties>() + (pageCookies.Length * sizeof(int));
+            var rollingPageOffset = spaceForPageMetaAndCookieOffsets;
+
+            foreach (var cookie in pageCookies)
+            {
+                var cookieMeta = new BinaryCookieMeta
+                {
+                    Cookie = cookie,
+                    OffsetFromPageStart = (uint)rollingPageOffset
+                };
+
+                // In order for these offsets to work correctly, the binary writer MUST encode in the SAME ORDER:
+                //   Domain, Name, Path, Value, Comment
+                // REMINDER: The ctor here helps w/ the offset calculations too.
+                // We don't use comment length here because it's always the LAST property, so its offset doesn't factor.
+                cookieMeta.CookieProperties = new BinaryCookieStructuredProperties(
+                    cookieMeta.CalculatedSize,
+                    cookie.Flags.Aggregate(0, (agg, flag) => agg | (int)flag),
+                    cookie.Domain.Length,
+                    cookie.Name.Length,
+                    cookie.Path.Length,
+                    cookie.Value.Length,
+                    cookie.Comment?.Length ?? 0);
+                
+                page.PageCookies.Add(cookieMeta);
+                rollingPageOffset += cookieMeta.CalculatedSize;
+            }
+            
+            // Don't need to do anything with offsets because the CalculatedSize property handles that later.
+            meta.JarPages.Add(page);
             
             j = i;
             currentPageSize = 0;
         }
+
+        meta.JarDetails = new JarStructuredProperties((uint)meta.JarPages.Count);
         
         // --------
         // --------

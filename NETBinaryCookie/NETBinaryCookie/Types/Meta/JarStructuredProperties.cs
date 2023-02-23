@@ -6,14 +6,13 @@ namespace NETBinaryCookie.Types.Meta;
 internal struct JarStructuredProperties
 {
     [FieldOffset(0)] [MarshalAs(UnmanagedType.U4)] [Endianness(EndiannessAttribute.Endianness.BigEndian)]
-    public readonly uint signature;
+    public readonly uint signature = BinaryCookieMetaConstants.FileSignatureHex;
 
     [FieldOffset(4)] [MarshalAs(UnmanagedType.U4)] [Endianness(EndiannessAttribute.Endianness.BigEndian)]
     public readonly uint numPages;
 
-    public JarStructuredProperties(uint signature, uint numPages)
+    public JarStructuredProperties(uint numPages)
     {
-        this.signature = signature;
         this.numPages = numPages;
     }
 }
