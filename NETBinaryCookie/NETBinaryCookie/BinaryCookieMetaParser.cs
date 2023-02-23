@@ -11,11 +11,25 @@ internal static class BinaryCookieMetaParser
     {
         if (!File.Exists(fileName))
         {
-            throw new FileNotFoundException("The binarycookie file does not exist");
+            throw new FileNotFoundException("The binarycookies file does not exist");
+        }
+
+        if (new FileInfo(fileName).Length < Marshal.SizeOf<JarStructuredProperties>())
+        {
+            throw new BinaryCookieException("The binarycookies file does not have enough information");
         }
         
-        using var stream = File.Open(fileName, FileMode.Open);
-        return Import(stream);
+        var stream = File.Open(fileName, FileMode.Open);
+        stream.Seek(0, SeekOrigin.Begin);
+        
+        try
+        {
+            return Import(stream);
+        }
+        finally
+        {
+            stream.Close();
+        }
     }
     
     internal static BinaryCookieJarMeta Import(Stream stream)

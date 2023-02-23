@@ -10,7 +10,29 @@ public static class BinaryCookieJarExtensions
     public static string CookiesToJson(this BinaryCookieJar jar) => JsonSerializer.Serialize(jar.GetCookies());
 
     internal static void Export(this BinaryCookieJar jar, string fileName)
-        => jar.Export(File.Open(fileName, FileMode.Create));
+    {
+        var backupFileName = $@"{fileName}.{Guid.NewGuid()}";
+        
+        // Create a backup file just in case something goes wrong.
+        if (File.Exists(fileName))
+        {
+            File.Copy(fileName, backupFileName);
+        }
+
+        try
+        {
+            jar.Export(File.Open(fileName, FileMode.Create));
+
+            // If the export DOES NOT throw, the backup can be removed.
+            if (File.Exists(backupFileName))
+            {
+                File.Delete(backupFileName);
+            }
+        }
+        finally
+        {
+        }
+    }
 
     internal static void Export(this BinaryCookieJar jar, Stream stream) =>
         BinaryCookieMetaComposer.Compose(jar.GetCookies(), stream);
