@@ -19,8 +19,15 @@ public class BinaryCookie
                $"SET: {this.Creation}\nEXPIRES: {this.Expiration}\nVALUE: {this.Value}\n";
     }
 
+    private static int _strlens(params string?[] str) =>
+        str.Aggregate(0, (acc, s) => acc + ((s?.Length + 1) ?? 0));
+
+    // expirationDate (long) + creationDate (long) + len(stringValues)
+    public int CalculatedSize => sizeof(long) + sizeof(long) +
+                                 _strlens(this.Comment, this.Domain, this.Name, this.Path, this.Value);
+
     [Required] public DateTime Expiration { get; set; }
-    
+
     [Required] public DateTime Creation { get; set; }
     
     public string? Comment { get; set; }
