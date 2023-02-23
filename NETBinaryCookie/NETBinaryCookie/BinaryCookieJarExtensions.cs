@@ -19,18 +19,12 @@ public static class BinaryCookieJarExtensions
             File.Copy(fileName, backupFileName);
         }
 
-        try
-        {
-            jar.Export(File.Open(fileName, FileMode.Create));
+        jar.Export(File.Open(fileName, FileMode.Create));
 
-            // If the export DOES NOT throw, the backup can be removed.
-            if (File.Exists(backupFileName))
-            {
-                File.Delete(backupFileName);
-            }
-        }
-        finally
+        // If the export DOES NOT throw, the backup should be removed.
+        if (File.Exists(backupFileName))
         {
+            File.Delete(backupFileName);
         }
     }
 
