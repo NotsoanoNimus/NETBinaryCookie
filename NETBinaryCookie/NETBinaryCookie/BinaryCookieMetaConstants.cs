@@ -10,7 +10,7 @@ internal static class BinaryCookieMetaConstants
 
     internal const uint CookieMetaEndMarker = 0x_00_00_00_00;
 
-    internal const ulong FileFooterSignature = 0x_07_17_20_05_00_00_00_4b;
+    internal const ulong FileFooterSignature = 0x_07_17_20_05_00_00_00_4B;
 
     internal const uint MaxCookieLength = 0x_10_00;   // 4 KiB max cookie length
 }
