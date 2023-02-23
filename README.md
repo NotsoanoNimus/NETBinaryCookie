@@ -60,24 +60,32 @@ cookieJar.AddCookie(new()
 cookieJar.Save();
 ```
 
+-----
 
-## File Format Specification
+# File Format Specification
 
-#### Structure
+## Structure
 
 The binarycookies file format is composed of sets of `cookies`, each contained together in `pages`.
 There can be multiple `pages`, which together comprise the binarycookies file itself.
 
 > FILE_HEADER
-> > PAGE1
-> > > COOKIE1
-> > > COOKIE2
-> > > COOKIE3
-> > PAGE2
-> > > COOKIE4
-> > > COOKIE5
+>> PAGE1
+>>> COOKIE1
+>>>
+>>> COOKIE2
+>>>
+>>> COOKIE3
+>>
+>> PAGE2
+>>> COOKIE4
+>>>
+>>> COOKIE5
+>
 > CHECKSUM
+>
 > FILE_FOOTER
+>
 > (STUB)
 
 The start of each file describes the layout of the `pages`, and the start of each `page` describes the layout of its corresponding `cookies`.
@@ -86,12 +94,12 @@ At the end of the file, a checksum follows the final cookie of the final page. T
 
 After that there may or may not be a bplist (binary plist) stub describing some extra properties about the container itself.
 
-#### Byte-by-byte
+## Byte-by-byte
 
 At the top of the binarycookies file is a header which gives the count of total pages and each of their offsets from the beginning of the file.
 
 | Field | Alias (if any) | Type | Size (bytes) | Endianness (B/L) | Description |
-|:------|:---------------|:-----|:------------:|:----------------:|:------------|
+|:------|:--------------:|:-----|:------------:|:----------------:|:------------|
 | signature | x | byte[] | 4 | B | The 'binarycookies' file signature; always `cook` (or `0x636f6f6b`). |
 | numPages | P | UInt32 | 4 | B | The number of pages in the file. |
 | pageSizes | x | UInt32 | P * 4 | B | A sequential list of page sizes (offsets). |
@@ -100,7 +108,7 @@ At the top of the binarycookies file is a header which gives the count of total 
 Next begins immediately the first page of the file. There will always be `P` page headers in a file, corresponding to `numPages`.
 
 | Field | Alias (if any) | Type | Size (bytes) | Endianness (B/L) | Description |
-|:------|:---------------|:-----|:------------:|:----------------:|:------------|
+|:------|:--------------:|:-----|:------------:|:----------------:|:------------|
 | pageHeader | x | byte[] | 4 | B | Signature which indicates the start of a new page of cookies. Equal to `0x00000100`. |
 | numCookies | C | UInt32 | 4 | L | Indicates the number of cookies contained in the page. |
 | cookieOffsets | x | UInt32 | C * 4 | L | An array of integers indicating the starting offset of each cookie from the beginning of `pageHeader`. |
@@ -112,7 +120,7 @@ Finally, after the `pageFooter` begins the first cookie from the page. Each cook
 _NOTE_: It is possible for there to be some padding in between cookies in the page, but it's unlikely. What is better, however, is to always trust the `cookieOffsets` table more than relying on there being no padding between cookies.
 
 | Field | Alias (if any) | Type | Size (bytes) | Endianness (B/L) | Description |
-|:------|:---------------|:-----|:------------:|:----------------:|:------------|
+|:------|:--------------:|:-----|:------------:|:----------------:|:------------|
 | cookieSize | x | UInt32 | 4 | L | Indicates the size of this cookie in bytes. |
 | unknownOne | x | byte | 4 | ? | Unknown or otherwise reserved value. |
 | cookieFlags | x | UInt32 | 4 | L | Bitwise flags indicating cookie properties like `Secure` and `Samesite` policies. |
@@ -139,7 +147,7 @@ When that page of cookies is finished, the next one should immediately begin. Bu
 At the very end of the last cookie of the last table, there is a 4-byte checksum and an 8-byte signature, then an optional `bplist` stub.
 
 | Field | Alias (if any) | Type | Size (bytes) | Endianness (B/L) | Description |
-|:------|:---------------|:-----|:------------:|:----------------:|:------------|
+|:------|:--------------:|:-----|:------------:|:----------------:|:------------|
 | checksum | x | UInt32 | 4 | L | A 32-bit checksum calculated by adding every fourth byte in each page together, then summing all page checksums. |
 | fileFooter | x | byte | 8 | B | A binarycookies file footer signature. Should always be `0717 2005 0000 004B`. |
 | propertiesStub | x | byte | Any | ? | (_Optional_) A binary plist-formatted stub on the end of the file which contains extra metadata about the file. |
