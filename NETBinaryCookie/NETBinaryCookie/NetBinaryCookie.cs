@@ -15,6 +15,8 @@ public static class NetBinaryCookie
         SamesiteNone = 1 << 6,
         ReservedTwo = 1 << 7
     }
+
+    public static bool ThrowOnInvalidFileChecksum { get; set; } = false;
     
     public static BinaryCookieJar ReadFromFile(string fileName) => new(fileName);
 
