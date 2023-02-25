@@ -4,6 +4,8 @@ namespace NETBinaryCookie.Types;
 
 public sealed class BinaryCookieJar : IBinaryCookieJar
 {
+    public byte[]? Stub { get; set; }
+    
     private List<BinaryCookie> Cookies { get; } = new();
 
     private string? TargetFileName { get; }
@@ -42,6 +44,8 @@ public sealed class BinaryCookieJar : IBinaryCookieJar
         var cookies = pageCookies.Select(cookie => cookie.Cookie).ToList();
         
         this.Cookies.AddRange(cookies);
+
+        this.Stub = this.Meta.TrailingData;
     }
     
     public ImmutableArray<BinaryCookie> GetCookies() => this.Cookies.ToImmutableArray();

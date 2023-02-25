@@ -21,6 +21,8 @@ public interface IBinaryCookieJar
     public void Save(string? fileName = null);
 
     public void Save(Stream stream);
+
+    public byte[] Stub { get; set; }
 }
 
 public static class BinaryCookieJarExtensions
