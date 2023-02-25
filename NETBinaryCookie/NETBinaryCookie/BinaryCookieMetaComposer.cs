@@ -14,7 +14,7 @@ internal static class BinaryCookieMetaComposer
     // The strategy for composing the file is not going to win any awards. Just create the lowest units (cookies & meta)
     //   first, then turn the page each time the size is creeping uncomfortably. It builds from the inside-out.
     //   After constructing the meta object, the writer can do its work. Personally, I prefer to keep these separated.
-    internal static void Compose(ImmutableArray<BinaryCookie> cookies, Stream stream)
+    internal static void Compose(ImmutableArray<BinaryCookie> cookies, Stream stream, byte[] stub)
     {
         var meta = new BinaryCookieJarMeta();
         

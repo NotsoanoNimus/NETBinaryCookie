@@ -130,9 +130,6 @@ internal static class BinaryCookieMetaParser
         // Get the current checksum value. Not that it's being used, but it moves the cursor.
         meta.Checksum = reader.ReadBinaryBigEndianInt32();
 
-        // Manually calculate a checksum. This isn't really checked here, but it's useful in unit testing.
-        meta.CalculatedChecksum = meta.JarPages.Select(x => x.Checksum).Aggregate(0, (i, j) => i + j);
-
         // This is off by default but can be enabled globally to enforce the module checks for a matching checksum.
         if (NetBinaryCookie.ThrowOnInvalidFileChecksum && meta.Checksum != meta.CalculatedChecksum)
         {

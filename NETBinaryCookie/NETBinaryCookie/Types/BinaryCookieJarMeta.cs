@@ -18,8 +18,8 @@ internal sealed class BinaryCookieJarMeta
     public int CalculatedSize => sizeof(int) + sizeof(int) + (int)(this.JarDetails.numPages * sizeof(int)) +
                                  this.JarPages.Aggregate(0, (i, page) => i += page.CalculatedSize) + sizeof(int) +
                                  sizeof(long) + TrailingData.Length;
-    
-    public int CalculatedChecksum { get; set; }
+
+    public int CalculatedChecksum => this.JarPages.Select(x => x.Checksum).Aggregate(0, (i, j) => i + j);
 }
 
 internal sealed class BinaryCookiePageMeta

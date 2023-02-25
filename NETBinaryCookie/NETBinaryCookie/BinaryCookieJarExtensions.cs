@@ -38,5 +38,5 @@ public static class BinaryCookieJarExtensions
     }
 
     internal static void Export(this BinaryCookieJar jar, Stream stream) =>
-        BinaryCookieMetaComposer.Compose(jar.GetCookies(), stream);
+        BinaryCookieMetaComposer.Compose(jar.GetCookies(), stream, jar.Stub ?? new byte[] { });
 }
