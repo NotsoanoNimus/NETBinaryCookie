@@ -80,7 +80,79 @@ internal static class BinaryCookieMetaComposer
         
         // --------
         // --------
-        // Begin stream writing.
+        // Begin stream writing. NOTE: Do not seek here; this allows the user to give a stream at a specific position.
+        //   This section uses named sections from the README to display which field is being written.
         var writer = new BinaryWriter(stream, Encoding.UTF8, false);
+
+        // signature, numPages
+        writer.Write(BinaryCookieTranscoder.StructToBytes(meta.JarDetails));
+        
+        // pageSizes
+        foreach (var page in meta.JarPages)
+        {
+            writer.Write(page.CalculatedSize);
+        }
+
+        foreach (var page in meta.JarPages)
+        {
+            // pageHeader, numCookies
+            writer.Write(BinaryCookieTranscoder.StructToBytes(page.PageProperties));
+
+            foreach (var cookie in page.PageCookies)
+            {
+                // cookieOffsets
+                writer.Write(cookie.OffsetFromPageStart);
+            }
+            
+            // pageFooter
+            writer.Write(BinaryCookieMetaConstants.PageMetaEndMarker);
+
+            foreach (var cookieMeta in page.PageCookies)
+            {
+                // cookieSize, unknownOne, cookieFlags, unknownTwo, domainOffset, nameOffset, pathOffset,
+                //   valueOffset, commentOffset, separator
+                writer.Write(BinaryCookieTranscoder.StructToBytes(cookieMeta.CookieProperties));
+
+                var c = cookieMeta.Cookie;
+                var p = cookieMeta.CookieProperties;
+                
+                // expires
+                writer.WriteDateTimeAsBinaryNsDate(c.Expiration);
+                
+                // creation
+                writer.WriteDateTimeAsBinaryNsDate(c.Creation);
+                
+                // [field]Offset
+                foreach (var offset in new[]
+                             { p.domainOffset, p.nameOffset, p.pathOffset, p.valueOffset, p.commentOffset })
+                {
+                    writer.Write(offset);
+                }
+
+                // [field]
+                foreach (var field in new[] { c.Domain, c.Name, c.Path, c.Value, c.Comment })
+                {
+                    if (field is null)
+                    {
+                        continue;
+                    }
+                    
+                    writer.Write(Encoding.UTF8.GetBytes(field));
+                    writer.Write((byte)0x00);
+                }
+            }
+        }
+        
+        // checksum
+        writer.Write(meta.CalculatedChecksum);
+        
+        // fileFooter (big-endian)
+        writer.Write(BitConverter.GetBytes(BinaryCookieMetaConstants.FileFooterSignature).Reverse().ToArray());
+        
+        // stub
+        if (stub.Length > 0)
+        {
+            writer.Write(stub);
+        }
     }
 }
