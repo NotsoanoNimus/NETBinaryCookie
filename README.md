@@ -2,6 +2,8 @@
 
 A simple, independent Apple binarycookies format read-write package for .NET projects.
 
+Makes Mac cookie forensics without limitations a breeze with .NET!
+
 Supports parsing lists of cookies from an input binarycookies file or stream otherwise.
 Also supports writing those cookies back to disk or another stream.
 
@@ -12,7 +14,7 @@ This package is [available on NuGet](https://www.nuget.org/packages/NETBinaryCoo
 - [X] Reverse-engineer the checksum calculation used and implement it successfully in the library.
 - [ ] Ability to write a cookie jar back to its source file (or another stream/file) after modifying.
 - [ ] Thorough unit testing to detect breaking changes easily.
-- [ ] Expository README documentation that will help others even more thoroughly than other guides/specifications have helped me!
+- [X] Expository README documentation that will help others even more thoroughly than other guides/specifications have helped me!
 
 ### Dependencies
 
@@ -20,7 +22,7 @@ The dependency graph for this package is kept intentionally minimal, and concert
 
 ### Feedback
 
-Please submit any bug reports, feature requests, or other concerns on the [project's GitHub page](https://github.com/NotsoanoNimus/NETBinaryCookie).
+Please submit any bug reports, feature requests, or other concerns in this GitHub repository.
 
 ### Example Usage
 
@@ -46,6 +48,7 @@ foreach (var cookie in cookiesAfterChristmas)
 }
 // ...
 
+// If you're so inclined to do MORE than read the cookies file...
 cookieJar.AddCookie(new()
     {
         Creation = DateTime.Now,

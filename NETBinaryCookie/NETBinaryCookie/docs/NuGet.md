@@ -2,7 +2,10 @@
 
 A simple, independent Apple binarycookies format read-write package for .NET projects.
 
-Supports reading and parsing lists of cookies from an input binarycookies file or stream otherwise. Does not yet support writing modified lists of cookies back to disk.
+Makes Mac cookie forensics without limitations a breeze with .NET!
+
+Supports parsing lists of cookies from an input binarycookies file or stream otherwise.
+Also supports writing those cookies back to disk or another stream.
 
 ### Dependencies
 
@@ -10,9 +13,10 @@ The dependency graph for this package is kept intentionally minimal, and concert
 
 ### Feedback
 
-Please submit any bug reports, feature requests, or other concerns on the [project's GitHub page](https://github.com/NotsoanoNimus/NETBinaryCookie).
+Please submit any bug reports, feature requests, or other concerns on the [project's GitHub page](https://github.com/NotsoanoNimus/NETBinaryCookie)
+(where you can also find a lot more juicy information about the `binarycookies` file format!).
 
-To send appreciation, feel free to send me a direct email: `github@xmit.xyz`    
+To drop me a line, feel free to send me a direct email: `github@xmit.xyz`    
 
 ### Example Usage
 
@@ -39,4 +43,18 @@ foreach (var cookie in cookiesAfterChristmas)
     Console.WriteLine(cookie);
 }
 // ...
+
+// If you're so inclined to do MORE than read the cookies file...
+cookieJar.AddCookie(new()
+    {
+        Creation = DateTime.Now,
+        Expiration = DateTime.Now + TimeSpan.FromDays(5),
+        Domain = ".xmit.xyz",
+        Name = "HelloFromDotnet",
+        Path = "/myurl",
+        Value = "Hello, world!",
+        Flags = new[] { NetBinaryCookie.CookieFlag.SamesiteLax, NetBinaryCookie.CookieFlag.Secure }
+    });
+
+cookieJar.Save();
 ```
