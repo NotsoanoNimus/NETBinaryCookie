@@ -9,7 +9,7 @@ namespace NETBinaryCookie;
 internal static class BinaryCookieMetaComposer
 {
     // Loosely prefer page max sizes around 1,024 bytes, but each page will hold at LEAST 1 cookie.
-    private const int PreferredPageMaxSize = 0x_04_00;
+    private const int PreferredPageMaxSize = 0x_02_00;
     
     // The strategy for composing the file is not going to win any awards. Just create the lowest units (cookies & meta)
     //   first, then turn the page each time the size is creeping uncomfortably. It builds from the inside-out.
@@ -40,8 +40,9 @@ internal static class BinaryCookieMetaComposer
                 PageProperties = new PageStructuredProperties((uint)pageCookies.Length)
             };
             
+            // pageStart, numCookies [C], (C * sizeof(int)), pageFooter
             var spaceForPageMetaAndCookieOffsets =
-                Marshal.SizeOf<PageStructuredProperties>() + (pageCookies.Length * sizeof(int));
+                Marshal.SizeOf<PageStructuredProperties>() + (pageCookies.Length * sizeof(int)) + sizeof(int);
             var rollingPageOffset = spaceForPageMetaAndCookieOffsets;
 
             foreach (var cookie in pageCookies)
@@ -90,11 +91,13 @@ internal static class BinaryCookieMetaComposer
         // pageSizes
         foreach (var page in meta.JarPages)
         {
-            writer.Write(page.CalculatedSize);
+            writer.Write(BitConverter.GetBytes(page.CalculatedSize).Reverse().ToArray());
         }
 
         foreach (var page in meta.JarPages)
         {
+            var startOfPagePosition = writer.BaseStream.Position;
+            
             // pageHeader, numCookies
             writer.Write(BinaryCookieTranscoder.StructToBytes(page.PageProperties));
 
@@ -114,20 +117,12 @@ internal static class BinaryCookieMetaComposer
                 writer.Write(BinaryCookieTranscoder.StructToBytes(cookieMeta.CookieProperties));
 
                 var c = cookieMeta.Cookie;
-                var p = cookieMeta.CookieProperties;
                 
                 // expires
                 writer.WriteDateTimeAsBinaryNsDate(c.Expiration);
                 
                 // creation
                 writer.WriteDateTimeAsBinaryNsDate(c.Creation);
-                
-                // [field]Offset
-                foreach (var offset in new[]
-                             { p.domainOffset, p.nameOffset, p.pathOffset, p.valueOffset, p.commentOffset })
-                {
-                    writer.Write(offset);
-                }
 
                 // [field]
                 foreach (var field in new[] { c.Domain, c.Name, c.Path, c.Value, c.Comment })
@@ -141,10 +136,18 @@ internal static class BinaryCookieMetaComposer
                     writer.Write((byte)0x00);
                 }
             }
+            
+            // Rewind the stream temporarily and record the page checksum.
+            var endOfPagePosition = writer.BaseStream.Position;
+
+            var rdr = new BinaryReader(stream);
+            page.Checksum = rdr.GetInt32Checksum((int)startOfPagePosition);
+
+            writer.BaseStream.Seek(endOfPagePosition, SeekOrigin.Begin);
         }
         
         // checksum
-        writer.Write(meta.CalculatedChecksum);
+        writer.Write(BitConverter.GetBytes(meta.CalculatedChecksum).Reverse().ToArray());
         
         // fileFooter (big-endian)
         writer.Write(BitConverter.GetBytes(BinaryCookieMetaConstants.FileFooterSignature).Reverse().ToArray());
