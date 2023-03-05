@@ -1,6 +1,6 @@
 ﻿namespace NETBinaryCookie.Types;
 
-public class BinaryCookieException : Exception
+public sealed class BinaryCookieException : Exception
 {
     public BinaryCookieException()
     {
