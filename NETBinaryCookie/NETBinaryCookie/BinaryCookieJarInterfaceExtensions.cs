@@ -2,15 +2,14 @@
 using System.Text.Json;
 using System.Xml.Serialization;
 using NETBinaryCookie.Types;
-using NETBinaryCookie.Types.Meta;
 
 namespace NETBinaryCookie;
 
-public static class BinaryCookieJarExtensions
+public static class BinaryCookieJarInterfaceExtensions
 {
-    public static string CookiesToJson(this BinaryCookieJar jar) => JsonSerializer.Serialize(jar.GetCookies());
+    public static string CookiesToJson(this IBinaryCookieJar jar) => JsonSerializer.Serialize(jar.GetCookies());
 
-    public static string CookiesToXml(this BinaryCookieJar jar)
+    public static string CookiesToXml(this IBinaryCookieJar jar)
     {
         var stream = new MemoryStream();
         new XmlSerializer(typeof(BinaryCookie[])).Serialize(stream, jar.GetCookies());
@@ -18,7 +17,7 @@ public static class BinaryCookieJarExtensions
         return Encoding.UTF8.GetString(stream.ToArray());
     }
 
-    internal static void Export(this BinaryCookieJar jar, string fileName)
+    internal static void Export(this IBinaryCookieJar jar, string fileName)
     {
         var backupFileName = $@"{fileName}.{Guid.NewGuid()}";
         
@@ -46,6 +45,6 @@ public static class BinaryCookieJarExtensions
         }
     }
 
-    internal static void Export(this BinaryCookieJar jar, Stream stream) =>
-        BinaryCookieMetaComposer.Compose(jar.GetCookies(), stream, jar.Stub ?? new byte[] { });
+    internal static void Export(this IBinaryCookieJar jar, Stream stream) =>
+        BinaryCookieMetaComposer.Compose(jar.GetCookies(), stream, jar.Stub);
 }
