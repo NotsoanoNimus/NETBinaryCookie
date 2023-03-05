@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using System.Xml.Serialization;
 using NETBinaryCookie.Types;
 using NETBinaryCookie.Types.Meta;
 
@@ -8,6 +9,14 @@ namespace NETBinaryCookie;
 public static class BinaryCookieJarExtensions
 {
     public static string CookiesToJson(this BinaryCookieJar jar) => JsonSerializer.Serialize(jar.GetCookies());
+
+    public static string CookiesToXml(this BinaryCookieJar jar)
+    {
+        var stream = new MemoryStream();
+        new XmlSerializer(typeof(BinaryCookie[])).Serialize(stream, jar.GetCookies());
+
+        return Encoding.UTF8.GetString(stream.ToArray());
+    }
 
     internal static void Export(this BinaryCookieJar jar, string fileName)
     {
