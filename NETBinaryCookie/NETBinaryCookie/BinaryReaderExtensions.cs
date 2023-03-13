@@ -1,6 +1,10 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("NETBinaryCookie.Tests")]
 
 namespace NETBinaryCookie;
+
+using System.Text;
 
 internal static class BinaryReaderExtensions
 {

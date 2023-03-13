@@ -18,6 +18,9 @@ public static class Program
         }
         
         var fileName = args[0];
+
+        NetBinaryCookie.ThrowOnInvalidFileChecksum = true;
+        
         var outputFileName = args[1];
         var outputFormat = args.Length > 2 ? args[2].ToLowerInvariant() : null;
         BinaryCookieJar binaryCookieJar = null!;

@@ -13,7 +13,7 @@
         <PackageLicenseUrl>https://github.com/NotsoanoNimus/NETBinaryCookie/blob/master/LICENSE</PackageLicenseUrl>
         <PackageIcon>cookieJar.png</PackageIcon>
         <RepositoryUrl>https://github.com/NotsoanoNimus/NETBinaryCookie</RepositoryUrl>
-        <PackageTags>iOS,cookies</PackageTags>
+        <PackageTags>iOS,cookies,forensics,Mac,OSX</PackageTags>
         <PackageReleaseNotes>Supports writing and parsing lists of cookies from an input binarycookies file or stream otherwise.</PackageReleaseNotes>
         <PackageVersion>1.1.0</PackageVersion>
     </PropertyGroup>
